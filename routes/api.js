@@ -1,5 +1,7 @@
 var express = require('express');
 var router = express.Router();
+const axios = require('axios');
+
 const {
   ORION_HOST,
   ORION_PORT,
@@ -77,7 +79,7 @@ const subscription = (entityType) => {
       },
       entities: [
         {
-          idPattern: `^${entityType}\\d+`,
+          idPattern: `^${entityType}\d+`,
           type: entityType
         }
       ]
@@ -91,7 +93,7 @@ router.post('/devices', async function (req, res, next) {
 
   try {
     let device = req.body;
-    console.log("req.body", req.body)
+    console.log("Petición recibida: ", req.body)
     let missingProperties = [
       // 'id', 
       'latitude', 
@@ -120,19 +122,21 @@ router.post('/devices', async function (req, res, next) {
     // Get existing services groups
     const servicesRes = await axios.get(servicesUrl, { headers });
     const servicesData = servicesRes.data.services;
-    console.log("services", servicesData);
+    // console.log("services", servicesData);
 
     // If there is no service group available for this entity type, one is created
     if (servicesData.filter(service => service.entity_type === device.entityType).length === 0) {
       const postService = await axios.post(servicesUrl, services(device.entityType) , { headers });
-      console.log('Servicio creado', postService.status, postService.statusText);
+      console.log('Servicio creado:', postService.status, postService.statusText);
+    } else {
+      console.log(`Ya existe un servicio para la entidad ${device.entityType}`);
     };
 
     // Create device
     // Get existing devices
     const devicesRes = await axios.get(devicesUrl, { headers });
     const devicesData = devicesRes.data.devices;
-    console.log("devices", devicesData)
+    // console.log("devices", devicesData)
 
     let lastDeviceId, deviceNumber, newDeviceId;
     if (devicesData.length !== 0) {
@@ -148,26 +152,30 @@ router.post('/devices', async function (req, res, next) {
       newDeviceId = 'Mobile00000001' // Define initial device ID if none is present
     };
 
-    console.log("newDeviceId", newDeviceId);
+    console.log("Nueva ID generada:", newDeviceId);
 
     const postDevice = await axios.post(devicesUrl, devices(newDeviceId, device.entityType, device.id), { headers });
-    console.log('Dispositivo creado', postDevice.status, postDevice.statusText);
+    console.log('Dispositivo creado:', postDevice.status, postDevice.statusText);
 
     // Create subscription
     // Get existing subcriptions
     const subscriptionsRes = await axios.get(subscriptionsUrl, { headers });
     const subscriptions = subscriptionsRes.data;
-    console.log("subscriptions", subscriptions);
+    // console.log("subscriptions", subscriptions);
 
     // If there is no subscription available for this entity type, one is created
     if (subscriptions.filter(subscription => subscription.subject.entities[0].type === device.entityType).length === 0) {
       const postSubscription = await axios.post(subscriptionsUrl, subscription(device.entityType), { headers });
       console.log('Suscripción creada', postSubscription.status, postSubscription.statusText);
+    } else {
+      console.log(`Ya existe una suscripción para la entidad ${device.entityType}`);
     };
+
+    console.log(`Proceso de alta del dispositivo ${newDeviceId} completado con éxito`)
 
     res.json({
       success: true,
-      result: `A device for ${device.id} was successfully created`
+      result: `A device was successfully created. ID: ${device.id}`
     });
 
   } catch (err) {
