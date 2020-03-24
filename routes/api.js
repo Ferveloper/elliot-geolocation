@@ -55,8 +55,8 @@ const devices = (newDeviceId, entityType, id) => {
         transport: 'HTTP',
         attributes: [
           // { object_id: "hs", name: "health_status", type: "String" },
-          { object_id: "lat", name: "latitude", type: "Float" },
-          { object_id: "lon", name: "longitude", type: "Float" }
+          { object_id: "lat", name: "latitude", type: "Number" },
+          { object_id: "lon", name: "longitude", type: "Number" }
         ],
         static_attributes: [
           { name: "received_id", type: "String", value: id },
