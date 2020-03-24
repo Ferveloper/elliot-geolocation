@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 require('dotenv').config();
-require('console-stamp')(console, {pattern: 'dd/mm/yy HH:mm:ss'});
+require('console-stamp')(console, {pattern: 'dd/mm/yy HH:MM:ss'});
 
 /**
  * Module dependencies.
