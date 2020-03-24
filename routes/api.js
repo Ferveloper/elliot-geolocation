@@ -18,6 +18,7 @@ const {
 const servicesUrl = `http://${IOTAGENT_HOST}:${IOTAGENT_NORTH_PORT}/iot/services`;
 const devicesUrl = `http://${IOTAGENT_HOST}:${IOTAGENT_NORTH_PORT}/iot/devices`;
 const subscriptionsUrl = `http://${ORION_HOST}:${ORION_PORT}/v2/subscriptions`;
+const updateUrl = `http://${IOTAGENT_HOST}:${IOTAGENT_SOUTH_PORT}/iot/json?k=${API_KEY}`;
 const entityTypes = {
   Mobile: {
     attrs: [
@@ -54,11 +55,11 @@ const devices = (newDeviceId, entityType, id) => {
         transport: 'HTTP',
         attributes: [
           // { object_id: "hs", name: "health_status", type: "String" },
-          { object_id: "lat", name: "latitude", type: "Number" },
-          { object_id: "lon", name: "longitude", type: "Number" }
+          { object_id: "lat", name: "latitude", type: "Float" },
+          { object_id: "lon", name: "longitude", type: "Float" }
         ],
         static_attributes: [
-          { "name": "ID", "type": "String", "value": id },
+          { name: "received_id", type: "String", value: id },
         ]
       }
     ]
@@ -156,6 +157,12 @@ router.post('/devices', async function (req, res, next) {
 
     const postDevice = await axios.post(devicesUrl, devices(newDeviceId, device.entityType, device.id), { headers });
     console.log('Dispositivo creado:', postDevice.status, postDevice.statusText);
+
+    const updateDevice = await axios.post(`${updateUrl}&i=${newDeviceId}`, {
+      lat: device.latitude,
+      lon: device.longitude
+    }, { headers });
+    console.log('Dispositivo actualizado:', updateDevice.status, updateDevice.statusText);
 
     // Create subscription
     // Get existing subcriptions
