@@ -1,7 +1,12 @@
 #!/usr/bin/env node
 
 require('dotenv').config();
-require('console-stamp')(console, {pattern: 'dd/mm/yy HH:MM:ss'});
+const moment = require('moment');
+require('console-stamp')(console, {
+  formatter: function () {
+    return moment().format('DD/MM/YY HH:mm:ss.SSS');
+  }
+});
 
 /**
  * Module dependencies.
