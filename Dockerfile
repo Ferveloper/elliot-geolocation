@@ -20,7 +20,7 @@ COPY --chown=node:node . .
 
 EXPOSE 3000
 
-CMD [ "node", "index.js" ]
+CMD [ "npm", "start" ]
 
 # docker build -t elliot-geolocation .
 # Windows: docker run --name elliot-geolocation elliot-geolocation
