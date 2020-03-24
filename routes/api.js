@@ -18,7 +18,10 @@ const devicesUrl = `http://${IOTAGENT_HOST}:${IOTAGENT_NORTH_PORT}/iot/devices`;
 const subscriptionsUrl = `http://${ORION_HOST}:${ORION_PORT}/v2/subscriptions`;
 const entityTypes = {
   Mobile: {
-    attrs: ['health_status', 'latitude', 'longitude']
+    attrs: [
+      // 'health_status', 
+      'latitude', 
+      'longitude']
   }
 };
 const headers = {
@@ -48,7 +51,7 @@ const devices = (newDeviceId, entityType, id) => {
         protocol: 'PDI-IoTA-JSON',
         transport: 'HTTP',
         attributes: [
-          { object_id: "hs", name: "health_status", type: "String" },
+          // { object_id: "hs", name: "health_status", type: "String" },
           { object_id: "lat", name: "latitude", type: "Number" },
           { object_id: "lon", name: "longitude", type: "Number" }
         ],
@@ -89,7 +92,12 @@ router.post('/devices', async function (req, res, next) {
   try {
     let device = req.body;
     console.log("req.body", req.body)
-    let missingProperties = ['id', 'latitude', 'longitude', 'entityType'].filter(key => !device[key]);
+    let missingProperties = [
+      // 'id', 
+      'latitude', 
+      'longitude', 
+      // 'entityType'
+    ].filter(key => !device[key]);
     if (missingProperties.length > 0) {
       throw {
         success: false,
@@ -97,13 +105,16 @@ router.post('/devices', async function (req, res, next) {
         message: `Missing properties: ${missingProperties.toString().replace(/,/g, ', ')}`
       }
     };
-    if (!['Mobile'].includes(req.body.entityType)) {
-      throw {
-        success: false,
-        status: 422,
-        message: 'entity_type field must be set to Mobile'
-      }
-    }
+    // if (!['Mobile'].includes(req.body.entityType)) {
+    //   throw {
+    //     success: false,
+    //     status: 422,
+    //     message: 'entity_type field must be set to Mobile'
+    //   }
+    // }
+
+    if (!device.id) device.id = 'anonymous';
+    device.entityType = 'Mobile';
 
     // Create service group
     // Get existing services groups
@@ -172,27 +183,29 @@ router.post('/devices', async function (req, res, next) {
   }
 });
 
-router.patch('/devices', async function(req, res, next) {
+// ENDPOINT DROPPED UNTIL FURTHER NOTICE
 
-  const id = req.body.id;
-  const healthStatus = req.body.health_status;
-  const latitude = req.body.latitude;
-  const longitude = req.body.longitude;
+// router.patch('/devices', async function(req, res, next) {
 
-  const devicesRes = await axios.get(devicesUrl, { headers });
-  const devicesData = devicesRes.data.devices;
-  const deviceId = devicesData.filter(device => device.static_attributes.filter(attr => attr.name === 'ID')[0].value === id)[0].device_id;
+//   const id = req.body.id;
+//   const healthStatus = req.body.health_status;
+//   const latitude = req.body.latitude;
+//   const longitude = req.body.longitude;
 
-  const updateRes = await axios.post(`http://${IOTAGENT_HOST}:${IOTAGENT_SOUTH_PORT}/iot/json?k=${API_KEY}&i=${deviceId}`, {
-    hs: healthStatus,
-    lat: latitude,
-    lon: longitude
-  });
-  console.log(updateRes.data);
-  res.json({
-    success: true,
-    message: `Device ${id} successfully updated`
-  })
-});
+//   const devicesRes = await axios.get(devicesUrl, { headers });
+//   const devicesData = devicesRes.data.devices;
+//   const deviceId = devicesData.filter(device => device.static_attributes.filter(attr => attr.name === 'ID')[0].value === id)[0].device_id;
+
+//   const updateRes = await axios.post(`http://${IOTAGENT_HOST}:${IOTAGENT_SOUTH_PORT}/iot/json?k=${API_KEY}&i=${deviceId}`, {
+//     hs: healthStatus,
+//     lat: latitude,
+//     lon: longitude
+//   });
+//   console.log(updateRes.data);
+//   res.json({
+//     success: true,
+//     message: `Device ${id} successfully updated`
+//   })
+// });
 
 module.exports = router;
