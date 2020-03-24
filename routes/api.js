@@ -159,8 +159,8 @@ router.post('/devices', async function (req, res, next) {
     console.log('Dispositivo creado:', postDevice.status, postDevice.statusText);
 
     const updateDevice = await axios.post(`${updateUrl}&i=${newDeviceId}`, {
-      lat: parseInt(device.latitude),
-      lon: parseInt(device.longitude)
+      lat: parseFloat(device.latitude),
+      lon: parseFloat(device.longitude)
     }, { headers });
     console.log('Dispositivo actualizado:', updateDevice.status, updateDevice.statusText);
 
