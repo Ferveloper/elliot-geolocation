@@ -19,7 +19,7 @@ app.set('view engine', 'ejs');
 
 app.use(cors());
 logger.token('moment', function () { return moment().format('DD/MM/YY HH:mm:ss.SSS')});
-app.use(logger('[:moment] [REQ]   :method :url :status :response-time ms - :res[content-length]'));
+app.use(logger('[:moment] [REQ]    :method :url :status :response-time ms - :res[content-length]'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
